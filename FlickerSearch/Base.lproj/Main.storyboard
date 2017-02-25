@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="3pD-Il-1NZ">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="H2q-Ib-JQI">
+            <objects>
+                <viewController id="3pD-Il-1NZ" customClass="ViewController" customModule="AirtelSearch" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="rmo-Hb-TAj"/>
+                        <viewControllerLayoutGuide type="bottom" id="1j4-DJ-E5E"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="xKz-Iw-dQk">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="eYs-ne-V52">
+                                <rect key="frame" x="0.0" y="20" width="375" height="50"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="50" id="eqo-ni-LhO"/>
+                                </constraints>
+                                <textInputTraits key="textInputTraits"/>
+                            </searchBar>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="elN-Y1-Qcm">
+                                <rect key="frame" x="0.0" y="70" width="375" height="597"/>
+                                <color key="backgroundColor" red="0.81960784310000001" green="0.81960784310000001" blue="0.81960784310000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="image_cell" rowHeight="100" id="KYI-yA-Af8" customClass="ImageCell" customModule="AirtelSearch" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="100"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KYI-yA-Af8" id="erQ-h4-9zg">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="99.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="J9M-2f-VqE">
+                                                    <rect key="frame" x="10" y="5" width="90" height="89"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="90" id="ya7-NQ-3T4"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Oe-bA-bIN">
+                                                    <rect key="frame" x="110" y="39" width="255" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="J9M-2f-VqE" firstAttribute="leading" secondItem="erQ-h4-9zg" secondAttribute="leading" constant="10" id="NAT-8d-kpC"/>
+                                                <constraint firstItem="4Oe-bA-bIN" firstAttribute="centerY" secondItem="J9M-2f-VqE" secondAttribute="centerY" id="fp7-Bz-ucr"/>
+                                                <constraint firstAttribute="trailing" secondItem="4Oe-bA-bIN" secondAttribute="trailing" constant="10" id="iUG-bV-JL9"/>
+                                                <constraint firstItem="J9M-2f-VqE" firstAttribute="top" secondItem="erQ-h4-9zg" secondAttribute="top" constant="5" id="wvX-WF-IPs"/>
+                                                <constraint firstAttribute="bottom" secondItem="J9M-2f-VqE" secondAttribute="bottom" constant="5" id="xB9-GG-dFC"/>
+                                                <constraint firstItem="4Oe-bA-bIN" firstAttribute="leading" secondItem="J9M-2f-VqE" secondAttribute="trailing" constant="10" id="xOY-HC-vOc"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="imgView" destination="J9M-2f-VqE" id="gIJ-y3-pqR"/>
+                                            <outlet property="title" destination="4Oe-bA-bIN" id="m8d-al-brD"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="elN-Y1-Qcm" firstAttribute="top" secondItem="eYs-ne-V52" secondAttribute="bottom" id="1vq-4o-fbQ"/>
+                            <constraint firstItem="1j4-DJ-E5E" firstAttribute="top" secondItem="elN-Y1-Qcm" secondAttribute="bottom" id="Btn-Iq-oVc"/>
+                            <constraint firstAttribute="trailing" secondItem="elN-Y1-Qcm" secondAttribute="trailing" id="CEc-Hl-BL4"/>
+                            <constraint firstItem="eYs-ne-V52" firstAttribute="leading" secondItem="xKz-Iw-dQk" secondAttribute="leading" id="Jbq-si-Zmw"/>
+                            <constraint firstAttribute="trailing" secondItem="eYs-ne-V52" secondAttribute="trailing" id="QLD-bf-kEx"/>
+                            <constraint firstItem="elN-Y1-Qcm" firstAttribute="leading" secondItem="xKz-Iw-dQk" secondAttribute="leading" id="R1U-nD-4Gd"/>
+                            <constraint firstItem="eYs-ne-V52" firstAttribute="top" secondItem="rmo-Hb-TAj" secondAttribute="bottom" id="Zs7-UO-E69"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="searchBar" destination="eYs-ne-V52" id="Wjd-D9-SGO"/>
+                        <outlet property="searchBarHeight" destination="eqo-ni-LhO" id="fCU-pg-wPU"/>
+                        <outlet property="tableView" destination="elN-Y1-Qcm" id="ESq-zx-4pl"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eyP-02-BGR" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
