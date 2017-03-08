@@ -17,7 +17,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var dataModel:SearchModel!
     var lastContentOffset: CGFloat! = 0.0
-    //var dataArray = Array<PhotoModel>()
+    var dataArray = Array<PhotoModel>()
     
     
     override func viewDidLoad() {
@@ -48,11 +48,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (dataModel.photoArray != nil) {
-            return (dataModel.photoArray)!.count
-            
-        }
-        return 0
+
+        return dataArray.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -62,10 +59,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell:ImageCell = tableView.dequeueReusableCell(withIdentifier: ImageCell.reuse_Identifier) as! ImageCell
-        // if (dataModel.photoArray != nil && (dataModel.photoArray?.count)! >= indexPath.row) {
-        cell.updateCellWithModel(model: dataModel.photoArray?[indexPath.row])
-        //}
         
+        cell.updateCellWithModel(model: dataArray[indexPath.row])
         
         
         return cell;
@@ -79,32 +74,26 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         dataModel.photoArray?.removeAll()
         weak var weakSelf = self
         
-        
-        dataModel.fetchFlickerData { (response) in
+        let result = FlickerDataHelper.fetchData(searchedStr: searchText, searchModel: dataModel)
+
+        if result.isFound {
             
-            weakSelf?.updateData();
+            dataArray = result.arr
+            self.updateData()
             
-            //            if response.isSuccess {
-            //
-            //                weakSelf?.updateData();
-            //            }
+        } else {
+            dataModel.fetchFlickerData { (response) in
+                FlickerDataHelper.saveSearchedData(arr: weakSelf?.dataModel.photoArray, searchedStr: (weakSelf?.dataModel.textToSearch)!)
+                if weakSelf?.dataModel.photoArray != nil {
+                     weakSelf?.dataArray = (weakSelf?.dataModel.photoArray)!
+                }
+               
+                weakSelf?.updateData();
+            }
         }
+        
     }
-    
-    //    func fetchData(str:String, pageNum:Int) {
-    //        dataModel.textToSearch = str
-    //        dataModel.currentPage = 1
-    //
-    //        weak var weakSelf = self
-    //
-    //        dataModel.fetchFlickerData { (response) in
-    //
-    //            if response.isSuccess {
-    //
-    //                weakSelf?.updateData();
-    //            }
-    //        }
-    //    }
+
     
     func updateData() {
         
@@ -127,9 +116,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         
         if tableView.contentOffset.y > 0 && tableView.contentOffset.y >= (tableView.contentSize.height - tableView.bounds.size.height) {
-            
-            
-            
+
         }
     }
 

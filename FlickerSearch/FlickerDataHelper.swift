@@ -10,152 +10,112 @@ import UIKit
 import CoreData
 
 
-class DataSaveModelHelper: NSObject {
+class FlickerDataHelper: NSObject {
 
-    //static var savedDataArr: [NSManagedObject] = []
-    var connectingStr = "`connectingStr`"
-    var managedObjectContext:NSManagedObjectContext
+    static let connectingStr = "`connectingStr`"
 
-    
-    
-    
-    init(completionClosure: @escaping () -> ()) {
+    private override init(){
         
-        //This resource is the same name as your xcdatamodeld contained in your project
-        guard let modelURL = Bundle.main.url(forResource: "SaveDataModel", withExtension:"momd") else {
-            fatalError("Error loading model from bundle")
-        }
-        // The managed object model for the application. It is a fatal error for the application not to be able to find and load its model.
-        guard let mom = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("Error initializing mom from: \(modelURL)")
-        }
-        let psc = NSPersistentStoreCoordinator(managedObjectModel: mom)
-        managedObjectContext = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType)
-        managedObjectContext.persistentStoreCoordinator = psc
-        let queue = DispatchQueue.global(qos: DispatchQoS.QoSClass.background)
-        queue.async {
-            guard let docURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last else {
-                fatalError("Unable to resolve document directory")
+    }
+    
+    class func getContext() -> NSManagedObjectContext {
+        return FlickerDataHelper.persistentContainer.viewContext
+    }
+    
+    // MARK: - Core Data stack
+    
+    static var persistentContainer: NSPersistentContainer = {
+        /*
+         The persistent container for the application. This implementation
+         creates and returns a container, having loaded the store for the
+         application to it. This property is optional since there are legitimate
+         error conditions that could cause the creation of the store to fail.
+         */
+        let container = NSPersistentContainer(name: "SaveDataModel")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                // Replace this implementation with code to handle the error appropriately.
+                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                
+                /*
+                 Typical reasons for an error here include:
+                 * The parent directory does not exist, cannot be created, or disallows writing.
+                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
+                 * The device is out of space.
+                 * The store could not be migrated to the current model version.
+                 Check the error message to determine what the actual problem was.
+                 */
+                fatalError("Unresolved error \(error), \(error.userInfo)")
             }
-            let storeURL = docURL.appendingPathComponent("SaveDataModel.sqlite")
+        })
+        return container
+    }()
+    
+    // MARK: - Core Data Saving support
+    
+    class func saveContext () {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
             do {
-                try psc.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeURL, options: nil)
-                //The callback block is expected to complete the User Interface and therefore should be presented back on the main queue so that the user interface does not need to be concerned with which queue this call is coming from.
-                DispatchQueue.main.sync(execute: completionClosure)
+                try context.save()
             } catch {
-                fatalError("Error migrating store: \(error)")
+                // Replace this implementation with code to handle the error appropriately.
+                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
     }
 
     
-    func arrayToData(array:NSArray) -> Data {
+    class func saveData(str:String, arrData:Data) {
         
-        return NSKeyedArchiver.archivedData(withRootObject: array);
+        let flickerData:FlickerData = NSEntityDescription.insertNewObject(forEntityName: "FlickerData", into: FlickerDataHelper.getContext()) as! FlickerData
+        flickerData.str = str
+        flickerData.dataArray = arrData as NSData?
+        
+        FlickerDataHelper.saveContext()
     }
-    
-    func saveData(str:String, arrData:Data) {
+
         
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-//
-//        // 1
-        let context =
-            appDelegate.persistentContainer.viewContext
-        let task = DataSaveModel(context: context)
-        task.str = 
-//
-//        // 2
-//        let entity =
-//            NSEntityDescription.entity(forEntityName: "DataSaveModel",
-//                                       in: managedObjectContext)!
-//        
-//        let dataModel = NSManagedObject(entity: entity,
-//                                     insertInto: managedObjectContext)
-        
-        // 3
-        dataModel.setValue(str, forKeyPath: "str")
-        dataModel.setValue(arrData, forKeyPath: "dataArray")
-        
-        // 4
-        do {
-            try managedObjectContext.save()
-           // try managedContext.save()
-           // DataSaveModel.savedDataArr.append(dataModel)
-        } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
-        }
-        
-    }
-    
-    func dataToArray(data:Data) -> NSArray {
-        
-        return NSKeyedUnarchiver.unarchiveObject(with: data) as! NSArray;
-    }
-    
-        
-    func fetcData(searchedStr:String, searchModel:SearchModel) -> (arr:Array<PhotoModel>, isFound:Bool) {
-        
+    class func fetchData(searchedStr:String, searchModel:SearchModel) -> (arr:Array<PhotoModel>, isFound:Bool) {
+
         var arrModel = Array<PhotoModel>()
-        
         var isFound = false;
         
-        
-        //let moc = NSManagedObjectContext(concurrencyType: NSManagedObjectContextConcurrencyType.mainQueueConcurrencyType)
-        let dataFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "DataSaveModel")
-
+        let fetchRequest: NSFetchRequest<FlickerData> = FlickerData.fetchRequest()
+        fetchRequest.returnsObjectsAsFaults = false
         
         do {
-            let results = try managedObjectContext.fetch(dataFetch) as NSArray
-           // let results =
-              //  try managedObjectContext.fetch(dataFetch)
             
-            if results.count != 0 {
+            let searchedResults = try FlickerDataHelper.getContext().fetch(fetchRequest)
+            
+            for results in searchedResults as [FlickerData] {
                 
-                for result in results {
-                    
-                    if (result as AnyObject).value(forKeyPath:"str") as! String == searchedStr {
-                        isFound = true;
-                        
-                        let data = (result as AnyObject).value(forKeyPath:"dataArray")
-                        arrModel = convertArrayToPhotoModelArray(arr: dataToArray(data: data as! Data));
-                        
-                    }
-
-                
+                if results.str == searchedStr {
+                    isFound = true
+                    arrModel = convertArrayToPhotoModelArray(arr: dataToArray(data: results.dataArray as! Data))
+                    break
                 }
-                
             }
             
-        } catch let error as NSError {
-            print("Could not fetch \(error), \(error.userInfo)")
+        } catch {
+            print ("Error unable to fetch: \(error)")
         }
-        
-        
-      //  for obj in savedDataArr {
-//       
-//            
-//            if obj.value(forKeyPath:"str") as! String == searchedStr {
-//                isFound = true;
-//                
-//                let data = obj.value(forKeyPath:"dataArray")
-//                arrModel = convertArrayToPhotoModelArray(arr: dataToArray(data: data as! Data));
-//                
-//            }
-//        }
+  
         return (arrModel,isFound)
     }
     
-    func saveSearchedData(arr:Array<PhotoModel>?, searchedStr:String) {
+    
+    
+    class func saveSearchedData(arr:Array<PhotoModel>?, searchedStr:String) {
                
         let array = NSMutableArray()
         
         if arr != nil {
             
             for obj in (arr)! {
-                let str = obj.title + connectingStr + obj.imgUrl
+                let str = obj.title + FlickerDataHelper.connectingStr + obj.imgUrl
                 
                 array.add(str)
             }
@@ -164,53 +124,16 @@ class DataSaveModelHelper: NSObject {
         saveData(str: searchedStr, arrData: arrayToData(array: array));
         
     }
+
     
-//        if !isFound {
-//            
-//            searchModel.fetchFlickerData({ (response) in
-//                
-//                weak var weakself = self;
-//                
-//                if searchModel.photoArray != nil {
-//                    arrModel = searchModel.photoArray!
-//                    
-//                    weakself?.convertModelToArrayAndSave(model: searchModel)
-//                    
-//                }
-//                
-//                
-//            })
-//            
-//        }
-//        
-//        return arrModel;
-//    }
-    
-//    func convertModelToArrayAndSave(model:SearchModel) {
-//        let searchedText = model.textToSearch
-//        let array = NSMutableArray()
-//        
-//        if model.photoArray != nil {
-//            
-//            for obj in (model.photoArray)! {
-//                let str = obj.title + connectingStr + obj.imgUrl
-//                
-//                array.add(str)
-//            }
-//        }
-//        
-//        saveData(str: searchedText, arrData: arrayToData(array: array));
-//
-//    }
-    
-    func convertArrayToPhotoModelArray(arr:NSArray) -> Array<PhotoModel> {
+    class func convertArrayToPhotoModelArray(arr:NSArray) -> Array<PhotoModel> {
         
         var modelArr = Array<PhotoModel>()
         
         for obj in arr {
             
             let object = obj as! String
-            let components = object.components(separatedBy: connectingStr)
+            let components = object.components(separatedBy: FlickerDataHelper.connectingStr)
             
             if  components.count > 0 {
                 
@@ -224,6 +147,20 @@ class DataSaveModelHelper: NSObject {
         }
         return modelArr
     }
+    
+    class func arrayToData(array:NSArray) -> Data {
+        
+        return NSKeyedArchiver.archivedData(withRootObject: array);
+    }
+    
+    
+    
+    class func dataToArray(data:Data) -> NSArray {
+        
+        return NSKeyedUnarchiver.unarchiveObject(with: data) as! NSArray;
+    }
+    
+    
     
     
 }
